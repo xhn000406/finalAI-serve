@@ -11,6 +11,8 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { OpenAIChatService } from '../tools/aiTools/chat.service';
+import { ValidationPipe } from 'src/tools/ValidationPipe/validation.pipe';
+import { ChatDto } from './dto/chat.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -19,29 +21,9 @@ export class ChatController {
     private readonly OpenAIChatService: OpenAIChatService,
   ) {}
 
-  @Get('message')
-  chatMessage() {
-    const result = this.OpenAIChatService.chatMessage();
+  @Post('message')
+  chatMessage(@Body(new ValidationPipe()) ChatDto: ChatDto) {
+    const result = this.OpenAIChatService.chatMessage(ChatDto);
     return result;
-  }
-
-  @Get()
-  findAll() {
-    return this.chatService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(+id, updateChatDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.remove(+id);
   }
 }
