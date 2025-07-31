@@ -13,6 +13,9 @@ export class ValidationPipe implements PipeTransform<any> {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
+    if (value === null || value === undefined) {
+      throw new BadRequestException('Request body should not be empty');
+    }
     const object = plainToInstance(metatype, value);
     const errors = await validate(object);
     if (errors.length > 0) {

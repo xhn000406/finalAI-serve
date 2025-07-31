@@ -22,8 +22,8 @@ export class ChatController {
   ) {}
 
   @Post('message')
-  chatMessage(@Body(new ValidationPipe()) ChatDto: ChatDto) {
-    const result = this.OpenAIChatService.chatMessage(ChatDto);
+  chatMessage(@Body() chatDto: ChatDto) {
+    const result = this.OpenAIChatService.chatMessage(chatDto);
     return result;
   }
 }
