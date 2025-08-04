@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Sse,
+  Query,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
@@ -13,6 +15,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { OpenAIChatService } from '../tools/aiTools/chat.service';
 import { ValidationPipe } from 'src/tools/ValidationPipe/validation.pipe';
 import { ChatDto } from './dto/chat.dto';
+import { map, Observable } from 'rxjs';
 
 @Controller('chat')
 export class ChatController {
@@ -23,7 +26,19 @@ export class ChatController {
 
   @Post('message')
   chatMessage(@Body() chatDto: ChatDto) {
+    //调取普通的非流式调用
     const result = this.OpenAIChatService.chatMessage(chatDto);
     return result;
+  }
+
+  @Sse('stream')
+  /**
+   * 通过流的方式接收聊天消息
+   *
+   * @param chatDto 包含聊天信息的数据传输对象
+   * @returns 一个可观察的流，用于异步接收聊天消息
+   */
+  stream(@Query() chatDto: ChatDto) {
+    return this.OpenAIChatService.streamChatMessage(chatDto);
   }
 }
