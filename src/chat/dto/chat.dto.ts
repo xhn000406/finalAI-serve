@@ -3,4 +3,3 @@ export class ChatDto {
   @IsString()
   message: string;
 }
-  

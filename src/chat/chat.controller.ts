@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
   Sse,
   Query,
 } from '@nestjs/common';
@@ -38,7 +39,11 @@ export class ChatController {
    * @param chatDto 包含聊天信息的数据传输对象
    * @returns 一个可观察的流，用于异步接收聊天消息
    */
-  stream(@Query() chatDto: ChatDto) {
-    return this.OpenAIChatService.streamChatMessage(chatDto);
+  stream(
+    @Query() chatDto: ChatDto,
+    @Headers('user-id') userId: string,
+    @Headers('room-id') roomId: string,
+  ) {
+    return this.OpenAIChatService.streamChatMessage(chatDto, userId, roomId);
   }
 }

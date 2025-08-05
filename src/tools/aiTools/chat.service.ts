@@ -4,6 +4,7 @@ import { ChatDto } from 'src/chat/dto/chat.dto';
 import { Observable, from, map, tap } from 'rxjs';
 import { ChatService } from 'src/chat/chat.service'; // 导入ChatService
 import { PrismaService } from '../db/prisma.service';
+import { SessionService } from '../../tools/seesion/session.service';
 import { Prisma } from '@prisma/client';
 @Injectable()
 export class OpenAIChatService {
@@ -14,6 +15,7 @@ export class OpenAIChatService {
   constructor(
     private readonly chatService: ChatService,
     private prisma: PrismaService,
+    private SessionService: SessionService,
   ) {
     this.openai = new OpenAI({
       baseURL: 'https://api.deepseek.com',
@@ -44,7 +46,7 @@ export class OpenAIChatService {
   }
 
   // 流式调用 - 带完整内容收集和数据库保存
-  streamChatMessage(chatDto: ChatDto) {
+  streamChatMessage(chatDto: ChatDto, userId, roomId) {
     let fullResponse = '';
     const userMessage = chatDto.message;
 
@@ -72,15 +74,32 @@ export class OpenAIChatService {
             }
           }
 
+          let userDto;
+          let fineRoomId;
+          let fineTempUserId;
+
+          console.log('请求头获取的', userId);
+          if (!roomId) {
+            userDto = await this.SessionService.createSession(userId);
+            fineRoomId = userDto.roomId;
+            fineTempUserId = userDto.tempId;
+          } else {
+            fineRoomId = roomId;
+          }
+
+          console.log('结束后获取的', userDto);
           // 等流式输出完毕后保存进数据库
           console.log('保存到数据库：', fullResponse);
           await this.prisma.chatRecord.create({
             data: {
               question: userMessage,
               answer: fullResponse,
+              tempUserId: fineTempUserId,
+              roomId: fineRoomId,
               status: 3,
             },
           });
+
           // 流结束时通知客户端
           observer.complete();
         } catch (error) {

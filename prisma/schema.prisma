@@ -18,18 +18,34 @@ datasource db {
 model ChatRecord {
   id           String    @id @default(uuid())
   userId       String?   
-  tempUserId   String?  
+  tempUserId   String?
+  roomId       String     @default("temp-default-room-id")
   question     String
   answer       String    @db.Text
   status       Int
   createdAt    DateTime  @default(now())
   completedAt  DateTime?
   
-  // 定义索引
+  // 定义与ChatSession的关联，指定关联名称
+  //session      ChatSession @relation("ChatSessionToRecords", fields: [roomId], references: [roomId], onDelete: Cascade)
+  
+  // 索引
   @@index([userId])
   @@index([tempUserId])
   @@index([createdAt])
   @@index([status])
-  // 映射表名
   @@map("chat_records")
 }
+
+model ChatSession {
+  roomId          String    @id
+  userId          String?   
+  tempUserId      String?
+  createdAt       DateTime  @default(now())
+  updateTimeStamp DateTime?
+  // 反向关联，使用与ChatRecord相同的关联名称
+//  records         ChatRecord[] @relation("ChatSessionToRecords")
+  
+  @@map("chat_session")
+}
+    
