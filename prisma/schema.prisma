@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -18,7 +18,7 @@ datasource db {
 model ChatRecord {
   id           String    @id @default(uuid())
   userId       String?   
-  tempUserId   String?
+  tempUserId   String?  
   question     String
   answer       String    @db.Text
   status       Int

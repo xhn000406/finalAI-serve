@@ -4,6 +4,7 @@
 // 改为从自定义输出路径导入
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '../../../generated/prisma'; // 注意路径需要根据实际项目结构调整
+import { withAccelerate } from '@prisma/extension-accelerate';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -16,6 +17,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         },
       ],
     });
+    this.$extends(withAccelerate());
   }
 
   async onModuleInit() {
