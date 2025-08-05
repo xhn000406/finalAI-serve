@@ -76,13 +76,13 @@ export class OpenAIChatService {
 
           let userDto;
           let fineRoomId;
-          let fineTempUserId;
+          let fineUserId;
 
           console.log('请求头获取的', userId);
           if (!roomId) {
             userDto = await this.SessionService.createSession(userId);
             fineRoomId = userDto.roomId;
-            fineTempUserId = userDto.tempId;
+            fineUserId = userDto.findUserId;
           } else {
             fineRoomId = roomId;
           }
@@ -94,7 +94,7 @@ export class OpenAIChatService {
             data: {
               question: userMessage,
               answer: fullResponse,
-              tempUserId: fineTempUserId,
+             userId: fineUserId,
               roomId: fineRoomId,
               status: 3,
             },

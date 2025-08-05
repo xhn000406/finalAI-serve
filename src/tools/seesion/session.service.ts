@@ -11,22 +11,21 @@ export class SessionService {
 
   async createSession(userId) {
     const roomId = v4(); // 生成新的roomId
-    let tempId: string | null = null;
     // 若没有userId，创建临时用户标识
+    let findUserId = userId
     if (!userId) {
-      tempId = v4(); // 临时用户唯一标识
+      findUserId = v4(); // 临时用户唯一标识
     }
 
     // 保存会话到数据库
     await this.prisma.chatSession.create({
       data: {
         roomId,
-        userId: userId || null,
-        tempUserId: tempId || null,
+        userId: findUserId || null,
       },
     });
 
-    return { roomId, tempId };
+    return { roomId, findUserId };
   }
 
   async findSeesion(roomId: string) {
