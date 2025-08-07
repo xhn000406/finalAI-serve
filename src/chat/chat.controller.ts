@@ -60,6 +60,6 @@ export class ChatController {
     @Headers('user-id') userId: string,
     @Headers('room-id') roomId: string,
   ) {
-    return this.OpenAIChatService.getChatRoom(userId, roomId);
+    return this.OpenAIChatService.getChatRoom(userId);
   }
 }
