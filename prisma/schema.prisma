@@ -18,7 +18,6 @@ datasource db {
 model ChatRecord {
   id           String    @id @default(uuid())
   userId       String?   
-  tempUserId   String?
   roomId       String     @default("temp-default-room-id")
   question     String
   answer       String    @db.Text
@@ -31,7 +30,7 @@ model ChatRecord {
   
   // 索引
   @@index([userId])
-  @@index([tempUserId])
+ 
   @@index([createdAt])
   @@index([status])
   @@map("chat_records")
@@ -40,7 +39,6 @@ model ChatRecord {
 model ChatSession {
   roomId          String    @id
   userId          String?   
-  tempUserId      String?
   createdAt       DateTime  @default(now())
   updateTimeStamp DateTime?
   // 反向关联，使用与ChatRecord相同的关联名称
