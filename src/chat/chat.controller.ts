@@ -46,4 +46,20 @@ export class ChatController {
   ) {
     return this.OpenAIChatService.streamChatMessage(chatDto, userId, roomId);
   }
+
+  @Get('chatHistory')
+  getChatHistory(
+    @Headers('user-id') userId: string,
+    @Headers('room-id') roomId: string,
+  ) {
+    return this.OpenAIChatService.getChatHistory(userId, roomId);
+  }
+
+  @Get('chatRoom')
+  getChatRoom(
+    @Headers('user-id') userId: string,
+    @Headers('room-id') roomId: string,
+  ) {
+    return this.OpenAIChatService.getChatRoom(userId, roomId);
+  }
 }

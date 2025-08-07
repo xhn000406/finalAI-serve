@@ -144,7 +144,7 @@ export class OpenAIChatService {
     // );
   }
   // 数据库保存逻辑
-  private async saveToDatabase(userMessage: string, aiResponse: string) {
+  async saveToDatabase(userMessage: string, aiResponse: string) {
     if (!aiResponse) {
       this.logger.warn('AI响应内容为空，不保存到数据库');
       return;
@@ -157,5 +157,31 @@ export class OpenAIChatService {
       timestamp: new Date(),
       // 可以添加其他必要字段，如对话ID、用户ID等
     });
+  }
+  async getChatHistory(userId, roomId) {
+    if (userId && roomId) {
+      const chatHistory = await this.prisma.chatRecord.findMany({
+        where: {
+          userId: userId,
+          roomId: roomId,
+        },
+      });
+      return chatHistory;
+    } else {
+      return [];
+    }
+  }
+
+  async getChatRoom(userId) {
+    if (userId) {
+      const chatHistory = await this.prisma.chatSession.findMany({
+        where: {
+          userId: userId,
+        },
+      });
+      return chatHistory;
+    } else {
+      return [];
+    }
   }
 }
