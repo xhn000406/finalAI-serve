@@ -9,6 +9,7 @@ import {
   Headers,
   Sse,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
@@ -16,6 +17,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { OpenAIChatService } from '../tools/aiTools/chat.service';
 import { ValidationPipe } from 'src/tools/ValidationPipe/validation.pipe';
 import { ChatDto } from './dto/chat.dto';
+import { Response } from 'express';
 import { map, Observable } from 'rxjs';
 
 @Controller('chat')
@@ -43,7 +45,11 @@ export class ChatController {
     @Query() chatDto: ChatDto,
     @Headers('user-id') userId: string,
     @Headers('room-id') roomId: string,
+     @Res() res: Response,
   ) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
     return this.OpenAIChatService.streamChatMessage(chatDto, userId, roomId);
   }
 

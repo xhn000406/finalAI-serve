@@ -46,9 +46,22 @@ export class OpenAIChatService {
   }
 
   // 流式调用 - 带完整内容收集和数据库保存
-  streamChatMessage(chatDto: ChatDto, userId, roomId) {
+  async streamChatMessage(chatDto: ChatDto, userId, roomId) {
     let fullResponse = '';
     const userMessage = chatDto.message;
+
+    let userDto;
+    let fineRoomId;
+    let fineUserId;
+
+    console.log('请求头获取的', userId);
+    if (!roomId) {
+      userDto = await this.SessionService.createSession(userId);
+      fineRoomId = userDto.roomId;
+      fineUserId = userDto.findUserId;
+    } else {
+      fineRoomId = roomId;
+    }
 
     // 1. 创建流式请求，返回的是AsyncIterable<ChatCompletionChunk>
     const stream = this.openai.chat.completions.create({
@@ -69,22 +82,14 @@ export class OpenAIChatService {
             const content = chunk.choices[0]?.delta?.content;
             if (content) {
               // 按照SSE规范推送数据（data字段为必须）
-              observer.next({ data: { msg: content } });
+              const sseData = JSON.stringify({
+                msg: content,
+                userData: { roomId: fineRoomId, userId: fineUserId },
+              });
+              // 2. 按SSE规范拼接（data: + 字符串 + \n\n）
+              observer.next(`data: ${sseData}\n\n`);
               fullResponse += content; // 累积完整响应
             }
-          }
-
-          let userDto;
-          let fineRoomId;
-          let fineUserId;
-
-          console.log('请求头获取的', userId);
-          if (!roomId) {
-            userDto = await this.SessionService.createSession(userId);
-            fineRoomId = userDto.roomId;
-            fineUserId = userDto.findUserId;
-          } else {
-            fineRoomId = roomId;
           }
 
           console.log('结束后获取的', userDto);
@@ -94,14 +99,15 @@ export class OpenAIChatService {
             data: {
               question: userMessage,
               answer: fullResponse,
-             userId: fineUserId,
+              userId: fineUserId,
               roomId: fineRoomId,
               status: 3,
             },
           });
-
-          // 流结束时通知客户端
           observer.complete();
+
+          console.log('执行操作');
+          // 流结束时通知客户端
         } catch (error) {
           // 错误处理
           observer.error(error);

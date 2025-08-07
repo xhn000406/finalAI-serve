@@ -12,16 +12,18 @@ export class SessionService {
   async createSession(userId) {
     const roomId = v4(); // 生成新的roomId
     // 若没有userId，创建临时用户标识
-    let findUserId = userId
+    let findUserId = userId;
+    console.log(userId, 'userId');
     if (!userId) {
       findUserId = v4(); // 临时用户唯一标识
     }
+    console.log(findUserId, roomId);
 
     // 保存会话到数据库
     await this.prisma.chatSession.create({
       data: {
-        roomId,
-        userId: findUserId || null,
+        roomId: roomId,
+        userId: findUserId || '',
       },
     });
 
