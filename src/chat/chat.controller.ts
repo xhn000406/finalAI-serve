@@ -45,7 +45,7 @@ export class ChatController {
     @Query() chatDto: ChatDto,
     @Headers('user-id') userId: string,
     @Headers('room-id') roomId: string,
-     @Res() res: Response,
+    @Res() res: Response,
   ) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');

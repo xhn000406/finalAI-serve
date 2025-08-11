@@ -92,12 +92,15 @@ export class OpenAIChatService {
               fullResponse += content; // 累积完整响应
             } else {
             }
-            observer.next(`data: $w{}\n\n`);
           }
 
           console.log('结束后获取的', userDto);
           // 等流式输出完毕后保存进数据库
-          console.log('保存到数据库：', fullResponse);
+          // 流结束时立即通知客户端
+          observer.complete();
+          console.log('流已结束，开始保存到数据库');
+
+          // 流结束后保存进数据库
           await this.prisma.chatRecord.create({
             data: {
               question: userMessage,
@@ -107,13 +110,15 @@ export class OpenAIChatService {
               status: 3,
             },
           });
-          observer.complete();
 
+          console.log('保存到数据库完成');
           console.log('执行操作');
+
           // 流结束时通知客户端
         } catch (error) {
           // 错误处理
           observer.error(error);
+          observer.complete(); // 确保错误时也关闭流
         }
       })();
     });
