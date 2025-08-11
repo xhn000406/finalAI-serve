@@ -69,10 +69,10 @@ export class OpenAIChatService {
       model: 'deepseek-chat',
       stream: true, // 启用流式
     });
+    console.log(stream);
 
     return new Observable((observer) => {
       // 调用服务获取流式数据
-
       // 处理异步可迭代流
       (async () => {
         try {
@@ -83,13 +83,16 @@ export class OpenAIChatService {
             if (content) {
               // 按照SSE规范推送数据（data字段为必须）
               const sseData = JSON.stringify({
+                // 关键：序列化
                 msg: content,
                 userData: { roomId: fineRoomId, userId: fineUserId },
               });
-              // 2. 按SSE规范拼接（data: + 字符串 + \n\n）
+              // 正确格式：data: + 序列化后的JSON字符串 + \n\n
               observer.next(`data: ${sseData}\n\n`);
               fullResponse += content; // 累积完整响应
+            } else {
             }
+            observer.next(`data: $w{}\n\n`);
           }
 
           console.log('结束后获取的', userDto);
